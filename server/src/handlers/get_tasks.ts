@@ -1,16 +1,42 @@
+import { db } from '../db';
+import { tasksTable } from '../db/schema';
 import { type Task, type GetTasksByStatusInput } from '../schema';
+import { eq, asc } from 'drizzle-orm';
 
 export const getTasks = async (input?: GetTasksByStatusInput): Promise<Task[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all tasks from the database.
-    // If a status filter is provided, it should only return tasks with that status.
-    // Tasks should be ordered by created_at for consistent display.
-    return [];
+  try {
+    // Build query with conditional where clause
+    const baseQuery = db.select().from(tasksTable);
+    
+    const query = input?.status 
+      ? baseQuery.where(eq(tasksTable.status, input.status)).orderBy(asc(tasksTable.created_at))
+      : baseQuery.orderBy(asc(tasksTable.created_at));
+
+    const results = await query.execute();
+
+    // Return results - timestamps are already Date objects from drizzle
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch tasks:', error);
+    throw error;
+  }
 };
 
 export const getTasksByStatus = async (input: GetTasksByStatusInput): Promise<Task[]> => {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching tasks filtered by status from the database.
-    // This is a convenience method for the Kanban board columns.
-    return [];
+  try {
+    // Build query with conditional where clause
+    const baseQuery = db.select().from(tasksTable);
+    
+    const query = input.status 
+      ? baseQuery.where(eq(tasksTable.status, input.status)).orderBy(asc(tasksTable.created_at))
+      : baseQuery.orderBy(asc(tasksTable.created_at));
+
+    const results = await query.execute();
+
+    // Return results - timestamps are already Date objects from drizzle
+    return results;
+  } catch (error) {
+    console.error('Failed to fetch tasks by status:', error);
+    throw error;
+  }
 };
